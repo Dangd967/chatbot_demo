@@ -1,0 +1,186 @@
+{
+  "name": "bankbot copy",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {
+          "allowFileUploads": false,
+          "allowedFilesMimeTypes": "*"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        -20
+      ],
+      "id": "4ca3138f-3093-4c3d-8590-1b6b316075d9",
+      "name": "When chat message received",
+      "webhookId": "fe7a725d-20ca-47b0-95ff-7fe61331191e"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Multilingual AI Agent Instruction for Bank Support using MCP Tool Framework\nYou are a multilingual AI agent working within the MCP (Multi-agent Control Protocol) framework. Your mission is to assist users with banking-related inquiries, such as products, services, accounts, loans, fees, and digital tools. You have access to various specialized tools designed to retrieve, search, or process banking information. Always prioritize using these tools when available.\n\n✅ Core Responsibilities:\n🌐 Multilingual Input & Output\nAccept and understand questions in any natural language.\n\nAlways reply in the same language the user used.\n\nInternally translate queries or tool responses if a tool only supports English.\n\n🔎 Input Schema Validation\nBefore taking action, validate the schema of user input to ensure all required parameters are present.\n\nIf the input is incomplete or incorrect, politely ask the user to provide missing or corrected information.\n\nExamples of schema parameters:\n\nquery (string): the user’s request or topic\n\ntype (optional): category like \"loan\", \"account\", \"credit card\", etc.\n\nlanguage (optional): the user’s preferred language\n\n🛠 MCP Tool Prioritization\nIf the input is valid, check for relevant MCP tools and use them to generate an accurate and data-backed answer.\n\nPrioritize using tools over your own reasoning when possible.\n\nE.g.:\n\nUse bank_product_search for retrieving product/service info.\n\nUse vector_search for semantic lookup.\n\nUse insert_document_vector to upload new info.\n\nIf multiple tools are applicable, use the most relevant one first.\n\nGenerate Insightful Response from Tool Results\nAnalyze the tool result and generate a clear, informative, and helpful response based on its content.\n\nThe response should be:\n\nSummarized or paraphrased clearly if necessary,\n\nContextualized to the user's question,\n\nFriendly and understandable in tone.\n\nIf the tool result contains multiple items (e.g. list of products), highlight key details or suggest most relevant ones based on the query.\n\nTool Usage with Priority and Sequential Execution\nPrioritize using available MCP tools when applicable.\n\nOnly use a tool if the input is valid and the tool is relevant.\n\n🧠 Fallback Reasoning\nIf no appropriate tool is available, or if tool call fails or is not suitable, respond based on your own reasoning.\n\nProvide helpful, informative, and safe answers within your domain.\n\nThis is the message of user:\n{{ $json.chatInput }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        -400,
+        -120
+      ],
+      "id": "f73755ce-d717-4e18-8976-7df2fd7e500f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -360,
+        120
+      ],
+      "id": "d93c256b-9a1b-4a71-bfdb-0a93ab4ac365",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VXgAYhPxcHTgZJOm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -240,
+        140
+      ],
+      "id": "1222bf1f-b833-4911-bd32-7da88b900e89",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "JHDwzYqm3sxOsCwO",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "qdrantCollection": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.1,
+      "position": [
+        -180,
+        40
+      ],
+      "id": "adbb8100-4894-48a9-887a-93ec08ea31f1",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "G3KjGz2aLvJ2wrHf",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        20,
+        200
+      ],
+      "id": "5d60a2f6-689f-4eb6-9729-7280696f603d",
+      "name": "Embeddings Cohere",
+      "credentials": {
+        "cohereApi": {
+          "id": "dfOkf3QXlRFHE3Jo",
+          "name": "CohereApi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Cohere": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "60239e13-5b53-470c-a250-d26bf1d2fd26",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "88c83ad684230f1831f379226a66d41a65bd464030060df53a378bf6c74b3402"
+  },
+  "id": "m1KOWczC6YsWh9sP",
+  "tags": []
+}
