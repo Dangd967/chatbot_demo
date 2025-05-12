@@ -97,6 +97,7 @@ def initialize_agents(llm_config, docs_path=None):
         retrieve_config={
             "task": "qa",
             "docs_path": docs_path,
+            'embedding_model': 'all-MiniLM-L6-v2',
             #"vector_db": vector_db,
             #"overwrite": False,
             "get_or_create": True,
@@ -182,9 +183,9 @@ with gr.Blocks(css = custom_css) as demo:
             if len(bot_message) > 0 and bot_message[-1] != "TERMINATE"
             else bot_message[-2]
             if len(bot_message) > 1 
-            else bot_message[-1]
-            #else "Context is not enough for answering the question. Please press `enter` in the context url textbox to make sure the context is activated for the chat."
+            else "Tôi không thể trả lời câu hỏi này. Tôi sẽ kết nối bạn với nhân viên hỗ trợ."
         )
+        print(bot_message)
         chat_history.append({"role": "assistant", "content": bot_message_res})
         return chat_history
     
